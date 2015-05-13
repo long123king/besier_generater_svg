@@ -1,0 +1,98 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<script type="text/javascript" src="d3.min.js"></script>
+
+<body>
+<svg width="80%" height="80%" viewbox="0 0 400 400"
+     xmlns="http://www.w3.org/2000/svg">
+    <path d="M100 100C100 200 400 200 400 100" fill="none" stroke="red"></path>
+    <path d="M100 100L100 200L400 200L400 100" fill="none" stroke="red"></path>
+    </svg>
+</body>
+
+<script type="text/javascript">
+    var svg = d3.select("svg");
+    var is = d3.range(100, 401, 60);
+    var js = d3.range(100, 201, 20);
+
+    var pts = new Array();
+
+    is.forEach(function (i) {
+        js.forEach(function (j) {
+            pts.push({ x: i, y: j });
+        });
+    });
+
+    var pts_pairs = new Array();
+
+    pts.forEach(function (pt1) {
+        pts.forEach(function (pt2) {
+            pts_pairs.push({ x1: pt1.x, y1: pt1.y, x2: pt2.x, y2: pt2.y });
+        });
+    });
+
+    pts_pairs.sort(function cmp(a, b) {
+        return a.x1 + a.x2 + a.y1 + a.y2 - b.x1 - b.x2 - b.y1 - b.y2;
+    });
+
+    var animate_it = function () {
+        var index = 0;
+
+        var frame = function () {
+            if (index + 100 > pts_pairs.length) {
+                //clearInterval(id);
+                index = 0;
+            }
+            var frameset = pts_pairs.slice(index, index + 100);
+
+            if (index == 0) {
+                svg.selectAll("path.ani")
+                .data(frameset)
+                .enter()
+                .append("path")
+                    .attr("class", "ani")
+                    .attr("d", function (d) {
+                        return "M100 100C" + d.x1 + " " + d.y1 + " " + d.x2 + " " + d.y2 + " 400 100";
+                    })
+                    .attr("stroke", function (d) { return "hsla(" + (d.x1 + d.x2 + d.y1 + d.y2)%360 + ", " + 60 + "% , " + (50) + "%, 1)"; })
+                .attr("stroke-width", 1)
+                .attr("fill", "none");
+            }
+            else {
+                svg.selectAll("path.ani")
+            .data(frameset)
+                    .attr("class", "ani")
+                .attr("d", function (d) {
+                    return "M100 100C" + d.x1 + " " + d.y1 + " " + d.x2 + " " + d.y2 + " 400 100";
+                })
+                .attr("stroke", function (d) { return "hsla(" + (d.x1 + d.x2 + d.y1 + d.y2)%360 + ", " + 60 + "% , " + (50) + "%, 1)"; })
+            .attr("stroke-width", 1)
+            .attr("fill", "none")
+                ;
+            }
+
+            index += 100;
+        };
+
+        var id = setInterval(frame, 50);
+    };
+    
+    var scope_it = function () {
+            svg.selectAll("path")
+            .data(pts_pairs)
+            .enter()
+            .append("path")
+                .attr("d", function (d) {
+                    return "M100 100C" + d.x1 + " " + d.y1 + " " + d.x2 + " " + d.y2 + " 400 100";
+                })
+                .attr("stroke", "rgba(200, 200, 200, 0.1)")
+            .attr("stroke-width", 1)
+            .attr("fill", "none");
+    };
+
+    scope_it();
+    animate_it();
+        
+</script>
+
+</html>
